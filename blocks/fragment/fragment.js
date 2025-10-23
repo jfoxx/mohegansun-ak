@@ -22,7 +22,7 @@ export async function loadFragment(path) {
   const html = await resp.text();
   const doc = new DOMParser().parseFromString(html, 'text/html');
 
-  // Make embeded images cacheable
+  // Make images cacheable
   replaceDotMedia(path, doc);
 
   const sections = doc.body.querySelectorAll(':scope > div');
@@ -35,17 +35,44 @@ export async function loadFragment(path) {
   return fragment;
 }
 
+function getReplaceEl(a) {
+  let count = 0;
+  let current = a;
+  const parent = a.closest('.section');
+
+  // Walk up the DOM tree from child to parent
+  while (current && current !== parent) {
+    current = current.parentElement;
+    if (current && current !== parent) {
+      count += 1;
+    }
+  }
+
+  if (count > 2) return a;
+
+  const { children } = parent;
+  if (children.length > 1) return a;
+
+  const { children: containerChildren } = children[0];
+  if (containerChildren.length > 1) return a;
+
+  return parent;
+}
+
 export default async function init(a) {
   const path = a.getAttribute('href');
   const fragment = await loadFragment(path);
   if (fragment) {
+    const elToReplace = getReplaceEl(a);
+
+
     const sections = fragment.querySelectorAll(':scope > .section');
     const children = sections.length === 1
       ? fragment.querySelectorAll(':scope > *')
       : [fragment];
     for (const child of children) {
-      a.insertAdjacentElement('afterend', child);
+      elToReplace.insertAdjacentElement('afterend', child);
     }
-    a.remove();
+    elToReplace.remove();
   }
 }
