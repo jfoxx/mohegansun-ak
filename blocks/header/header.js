@@ -170,9 +170,7 @@ async function decorateActionSection(section) {
 
 async function decorateHeader(fragment) {
   const sections = fragment.querySelectorAll(':scope > .section');
-  if (sections[0]) decorateBrandSection(sections[0]);
-  if (sections[1]) decorateNavSection(sections[1]);
-  if (sections[2]) decorateActionSection(sections[2]);
+  if (sections[0]) decorateActionSection(sections[0]);
 
   for (const pattern of HEADER_ACTIONS) {
     decorateAction(fragment, pattern);

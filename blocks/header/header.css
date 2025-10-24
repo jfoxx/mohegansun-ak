@@ -26,6 +26,7 @@ header {
 
   a {
     text-decoration: none;
+    color: var(--color-mohegan-orange);
   }
 
   .btn {
@@ -119,48 +120,6 @@ header {
     }
   }
 
-  .brand-section {
-    grid-area: brand;
-
-    .default-content {
-      height: var(--header-height);
-      display: flex;
-      justify-content: space-between;
-
-      p,
-      a {
-        display: flex;
-        align-items: center;
-        position: relative;
-        font-size: var(--heading-font-size-m);
-        font-weight: 700;
-        text-decoration: none;
-        margin: 0;
-        color: var(--color-brand);
-
-        img {
-          height: var(--logo-height);
-        }
-
-        svg {
-          width: var(--logo-width);
-          height: var(--logo-height);
-        }
-
-        .brand-text {
-          display: block;
-          width: 0;
-          height: 0;
-          overflow: hidden;
-        }
-      }
-    }
-
-    .action-wrapper {
-      right: -23px; /* 64 minus waffle icon inset */
-    }
-  }
-
   .actions-section {
     grid-area: actions;
     max-height: 64px;
@@ -171,6 +130,8 @@ header {
       display: flex;
       justify-content: end;
       align-items: center;
+      gap: var(--spacing-l);
+      height: var(--header-height);
     }
 
     > .block-content {
@@ -190,62 +151,13 @@ header {
       overflow: scroll;
       max-height: 100%;
     }
-  }
 
-  .main-nav-section {
-    grid-area: nav;
-    overflow: scroll;
-
-    .default-content {
-      max-width: 100%;
-      margin: 0;
-    }
-
-    .main-nav-item {
-      border-bottom: 1px solid light-dark(var(--color-gray-200), var(--color-gray-600));
-
-      > * {
-        max-width: var(--grid-container-width);
-        margin: 0 auto;
-      }
-    }
-
-    .main-nav-link {
-      display: block;
-      line-height: 64px;
-    }
-
-    .menu,
-    .mega-menu {
-      display: none;
-    }
-
-    .is-open {
-      .main-nav-link {
-        border-bottom: 1px solid light-dark(var(--color-gray-200), var(--color-gray-600));
-      }
-
-      .menu,
-      .mega-menu {
-        display: block;
-      }
+    .icon {
+      margin-right: .5rem;
     }
   }
 
-  &.is-mobile-open {
-    height: initial;
-    max-height: initial;
-    overflow: initial;
-    bottom: 0;
 
-    .header-content {
-      height: 100%;
-    }
-
-    .brand-section {
-      border-bottom: 1px solid light-dark(var(--color-gray-200), var(--color-gray-600));
-    }
-  }
 }
 
 @media (width >= 900px) {
