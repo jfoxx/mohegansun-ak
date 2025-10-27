@@ -18,6 +18,18 @@ function toggleItem(el) {
   el.classList.toggle('is-open');
 }
 
+function closeButton() {
+  const btn = document.createElement('button');
+  btn.className = 'sidemenu-close-btn';
+  btn.setAttribute('aria-label', 'Close Menu');
+  btn.addEventListener('click', () => {
+    const menu = document.getElementById('sidemenu');
+    menu.classList.remove('is-open');
+  });
+  const target = document.querySelector('#sidemenu .section');
+  target.prepend(btn);
+}
+
 /**
  * loads and decorates the header
  * @param {Element} el The header element
@@ -27,6 +39,7 @@ export default async function init(el) {
   try {
     const fragment = await loadFragment(`${locale.prefix}${path}`);
     el.append(fragment);
+    closeButton();
     const items = el.querySelectorAll('li');
     items.forEach(
       (li) => {
