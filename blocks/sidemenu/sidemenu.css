@@ -26,6 +26,10 @@
 
     }
 
+    .fragment-content >.section > .default-content {
+        max-width: none;
+    }
+
     >.fragment-content>.section>.default-content>ul {
         list-style: none;
         padding: 0;
