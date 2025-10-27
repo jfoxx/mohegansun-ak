@@ -392,7 +392,8 @@ svg {
 }
 
 main>div,
-div[data-status] {
+div[data-status],
+.has-template {
   display: none;
 }
 
