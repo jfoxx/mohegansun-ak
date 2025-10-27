@@ -152,8 +152,14 @@ header {
       max-height: 100%;
     }
 
+    a {
+      display: flex;
+    }
+
     .icon {
       margin-right: .5rem;
+      width: 30px;
+      height: 30px;
     }
   }
 

@@ -137,6 +137,7 @@
 
   /* fonts */
   --font-family: montserrat, "Trebuchet MS", sans-serif;
+  --font-mohegan-sans: barlow, sans-serif;
 
   /* headings */
   --heading-font-size-xxl: 32.44px;
@@ -160,6 +161,8 @@
   /* misc */
   --header-height: 64px;
   --breadcrumb-height: 24px;
+  --side-menu-width: 12.5rem;
+  --side-menu-padding: 10px;
 }
 
 .light-scheme {
@@ -181,7 +184,7 @@ body {
   font-family: var(--font-family);
   font-size: var(--body-font-size-m);
   line-height: var(--body-line-height);
-  padding: var(--header-height) 0 0;
+  padding: var(--header-height) 0 0 var(--side-menu-width);
 
   &.has-breadcrumb {
     margin: calc(var(--header-height) + var(--breadcrumb-height)) 0 0;
@@ -190,6 +193,18 @@ body {
   &.no-header {
     --header-height: 0;
     margin: 0;
+  }
+
+  &::before {
+    content: "";
+    width: var(--side-menu-width);
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: var(--color-mohegan-purple);
+    background-image: url(/img/bg/nav-bg.jpg);
+    z-index: 1001;
   }
 }
 
