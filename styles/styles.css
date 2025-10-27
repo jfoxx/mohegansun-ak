@@ -122,6 +122,7 @@
   --color-mohegan-purple: #823E7C;
   --color-mohegan-purple-dark: #252167;
   --color-mohegan-orange: #c94f08;
+  --color-mohegan-red: #d60f00;
   --color-mohegan-green: #007550;
 
   /* named colors */
@@ -235,6 +236,10 @@ a {
     border: 2px solid;
     padding: 8px 12px;
     box-sizing: border-box;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--button-color-one) 0, var(--button-color-two) 100%);
+    border-color: var(--button-color-two);
+
 
     &.btn-outline {
       background: transparent;
@@ -242,9 +247,9 @@ a {
   }
 
   &.btn-accent {
+
     color: #fff;
-    background: var(--color-accent);
-    border: 2px solid var(--color-accent);
+
 
     &.btn-outline {
       color: var(--color-accent);
@@ -252,8 +257,12 @@ a {
   }
 
   &.btn-primary {
+    --button-color-one: var(--color-mohegan-orange);
+    --button-color-two: var(--color-mohegan-red);
     color: light-dark(var(--color-light), var(--color-dark));
     background-color: light-dark(var(--color-dark), var(--color-light));
+  
+
 
     &.btn-outline {
       color: light-dark(var(--color-dark), var(--color-light));
