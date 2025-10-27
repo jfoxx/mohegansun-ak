@@ -22,11 +22,12 @@
 
         >li {
             font-family: var(--font-mohegan-sans);
+            font-weight: 500;
             font-size: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             margin: 0;
 
-            >p {
+            p {
                 margin: 0;
             }
 
