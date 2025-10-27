@@ -110,32 +110,26 @@ async function decorateAction(header, pattern) {
   if (pattern === '/tools/widgets/toggle') decorateNavToggle(btn);
 }
 
-function decorateMenu(li) {
-  return null;
+function decorateMobileBrandSection(section) {
+  section.classList.add('mobile-brand-section');
 }
 
-function decorateMegaMenu(li) {
-  const menu = li.querySelector('.fragment-content');
-  if (!menu) return null;
-  const megaList = menu.closest('ul');
-  const wrapper = document.createElement('div');
-  wrapper.className = 'mega-menu';
-  wrapper.append(menu);
-  megaList.parentElement.replaceChild(wrapper, megaList);
-  return wrapper;
+function openMenu() {
+  const menu = document.getElementById('sidemenu');
+  menu.classList.add('is-open');
 }
 
-function decorateNavItem(li) {
-  li.classList.add('main-nav-item');
-  const link = li.querySelector(':scope > p > a');
-  if (link) link.classList.add('main-nav-link');
-  const menu = decorateMegaMenu(li) || decorateMenu(li);
-  if (!(menu || link)) return;
-  link.addEventListener('click', (e) => {
-    e.preventDefault();
-    toggleMenu(li);
-  });
+function addMobileMenuToggle() {
+  const header = document.querySelector('.header-content');
+  const mobileToggle = document.createElement('div');
+  mobileToggle.className = 'section mobile-menu-toggle';
+  mobileToggle.innerHTML = '<button class="menu-btn" aria-label="Toggle Menu"></button>';
+  header.prepend(mobileToggle);
+  const btn = mobileToggle.querySelector('button');
+  btn.addEventListener('click', openMenu);
 }
+
+
 
 
 async function decorateActionSection(section) {
@@ -144,7 +138,8 @@ async function decorateActionSection(section) {
 
 async function decorateHeader(fragment) {
   const sections = fragment.querySelectorAll(':scope > .section');
-  if (sections[0]) decorateActionSection(sections[0]);
+  if (sections[0]) decorateMobileBrandSection(sections[0]);
+  if (sections[1]) decorateActionSection(sections[1]);
 
   for (const pattern of HEADER_ACTIONS) {
     decorateAction(fragment, pattern);
@@ -163,6 +158,7 @@ export default async function init(el) {
     fragment.classList.add('header-content');
     await decorateHeader(fragment);
     el.append(fragment);
+    addMobileMenuToggle();
   } catch (e) {
     throw Error(e);
   }

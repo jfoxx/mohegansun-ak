@@ -1,5 +1,4 @@
-import { loadBlock } from "../ak.js";
-
+import { loadBlock } from '../ak.js';
 
 const sidemenu = document.createElement('div');
 sidemenu.id = 'sidemenu';

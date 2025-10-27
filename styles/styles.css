@@ -163,6 +163,7 @@
   --breadcrumb-height: 24px;
   --side-menu-width: 12.5rem;
   --side-menu-padding: 10px;
+  --breakpoint-header: 1160px;
 }
 
 .light-scheme {
@@ -203,8 +204,17 @@ body {
     left: 0;
     top: 0;
     background-color: var(--color-mohegan-purple);
-    background-image: url(/img/bg/nav-bg.jpg);
     z-index: 1001;
+  }
+}
+
+@media ( width < 1160px ) {
+  body {
+    padding-left: 0;
+
+    &::before {
+      display: none;
+    }
   }
 }
 
