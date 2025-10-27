@@ -65,7 +65,6 @@ export default async function init(a) {
   if (fragment) {
     const elToReplace = getReplaceEl(a);
 
-
     const sections = fragment.querySelectorAll(':scope > .section');
     const children = sections.length === 1
       ? fragment.querySelectorAll(':scope > *')
