@@ -65,6 +65,17 @@ export async function loadBlock(block) {
   return block;
 }
 
+function loadTemplate() {
+  const template = getMetadata('template');
+  if (!template) return;
+  const { codeBase } = getConfig();
+  document.body.classList.add('has-template');
+  loadStyle(`${codeBase}/templates/${template}/${template}.css`).then(() => {
+    document.body.classList.add(`${template}-template`);
+    document.body.classList.remove('has-template');
+  });
+}
+
 function decoratePictures(el) {
   const pics = el.querySelectorAll('picture');
   for (const pic of pics) {
@@ -260,7 +271,10 @@ export async function loadArea({ area } = { area: document }) {
   const { decorateArea } = getConfig();
   if (decorateArea) decorateArea({ area });
   const isDoc = area === document;
-  if (isDoc) decorateHeader();
+  if (isDoc) {
+    loadTemplate();
+    decorateHeader();
+  }
   const sections = decorateSections(area, isDoc);
   for (const [idx, section] of sections.entries()) {
     loadIcons(section);
@@ -276,10 +290,6 @@ export async function loadArea({ area } = { area: document }) {
   // Setup scheme
   const scheme = localStorage.getItem('color-scheme');
   if (scheme) document.body.classList.add(scheme);
-
-  // Setup template
-  const template = getMetadata('template');
-  if (template) { document.body.classList.add(`${template}-template`); }
 
   // Detect Hash
   const pageId = window.location.hash?.replace('#', '');
