@@ -30,6 +30,7 @@
     position: relative;
     width: 100%;
     min-height: min(40rem, calc(100svh - 64px));
+    margin-block: 0;
   }
 
   .carousel .carousel-slide:has(.carousel-slide-content[data-align="center"]) {
