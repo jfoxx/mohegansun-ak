@@ -153,7 +153,30 @@ export default async function decorate(block) {
   container.append(slidesWrapper);
   block.prepend(container);
 
-  if (!isSingleSlide) {
+    if (!isSingleSlide) {
     bindEvents(block);
+
+    // Auto-advance every 5 seconds
+    let autoAdvance = setInterval(() => {
+      const current = parseInt(block.dataset.activeSlide || '0', 10);
+      showSlide(block, current + 1);
+    }, 5000);
+
+    // Pause on hover or focus for accessibility
+    block.addEventListener('mouseenter', () => clearInterval(autoAdvance));
+    block.addEventListener('mouseleave', () => {
+      autoAdvance = setInterval(() => {
+        const current = parseInt(block.dataset.activeSlide || '0', 10);
+        showSlide(block, current + 1);
+      }, 5000);
+    });
+    block.addEventListener('focusin', () => clearInterval(autoAdvance));
+    block.addEventListener('focusout', () => {
+      autoAdvance = setInterval(() => {
+        const current = parseInt(block.dataset.activeSlide || '0', 10);
+        showSlide(block, current + 1);
+      }, 5000);
+    });
   }
+
 }

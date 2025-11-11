@@ -265,7 +265,7 @@ a {
   &.btn-primary {
     --button-color-one: var(--color-mohegan-orange);
     --button-color-two: var(--color-mohegan-red);
-    color: light-dark(var(--color-light), var(--color-dark));
+    color: white;
     background-color: light-dark(var(--color-dark), var(--color-light));
   
 
