@@ -1,4 +1,5 @@
 footer {
+  border-top: 10px solid black;
   a {
     text-decoration: none;
   }
@@ -9,20 +10,41 @@ footer {
     font-size: 14px;
   }
 
-  .section-legal ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .section-copyright p {
-    margin: 0;
-  }
 
   .section {
     .default-content {
       max-width: initial;
       margin: initial;
+    }
+  }
+
+  .section-links {
+    text-align: center;
+    font-size: small;
+    max-width: 900px;
+    margin: auto;
+   
+    .columns {
+       --columns-gap: 50px;
+    }
+
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      columns: 2;
+
+      a {
+        color: var(--color-mohegan-orange);
+      }
+    }
+
+    .col-3 {
+      ul { columns: unset}
+      li { 
+        display: flex;
+      }
     }
   }
 }

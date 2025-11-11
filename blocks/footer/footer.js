@@ -20,8 +20,11 @@ export default async function init(el) {
     const copyright = sections.pop();
     copyright.classList.add('section-copyright');
 
-    const legal = sections.pop();
-    legal.classList.add('section-legal');
+    const location = sections.pop();
+    location.classList.add('section-location');
+
+    const links = sections.pop();
+    links.classList.add('section-links');
 
     el.append(fragment);
   } catch (e) {
