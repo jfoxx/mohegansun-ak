@@ -147,6 +147,7 @@
   --font-mohegan-script: fave-script-pro, script;
 
   /* headings */
+  --heading-font-size-xxxl: 50px;
   --heading-font-size-xxl: 32.44px;
   --heading-font-size-xl: 28.83px;
   --heading-font-size-l: 25.63px;
@@ -363,7 +364,7 @@ h1 {
 
 h2 {
   font-size: var(--heading-font-size-xl);
-  em { font-size: var(--heading-font-size-xxl);}
+  em { font-size: var(--heading-font-size-xxxl);}
 }
 
 h3 {
@@ -506,6 +507,42 @@ main .section {
 
   &:first-of-type {
     padding-top: 0;
+  }
+}
+
+/* color theme styles */
+.color-theme-purple {
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-mohegan-purple);
+
+    em {
+      color: var(--color-mohegan-teal);
+    }
+  }
+
+}
+
+.color-theme-blue {
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-mohegan-blue);
+  }
+}
+
+.color-theme-green {
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-mohegan-green);
+  }
+}
+
+.color-theme-orange {
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-mohegan-orange);
+  }
+}
+
+.color-theme-red {
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-mohegan-red);
   }
 }
 
