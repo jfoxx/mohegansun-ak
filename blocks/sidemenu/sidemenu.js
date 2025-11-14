@@ -40,6 +40,17 @@ export default async function init(el) {
     const fragment = await loadFragment(`${locale.prefix}${path}`);
     el.append(fragment);
     closeButton();
+    
+    // Make logo image a link to homepage
+    const logo = el.querySelector('img');
+    if (logo && !logo.closest('a')) {
+      const logoLink = document.createElement('a');
+      logoLink.href = '/';
+      logoLink.setAttribute('aria-label', 'Home');
+      logo.parentElement.insertBefore(logoLink, logo);
+      logoLink.appendChild(logo);
+    }
+    
     const items = el.querySelectorAll('li');
     items.forEach(
       (li) => {
