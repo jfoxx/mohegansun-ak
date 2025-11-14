@@ -3,7 +3,9 @@
   color: #fff;
   overflow: hidden;
 
-  --min-height: 360px;
+  --min-height: 500px;
+
+  margin-bottom: var(--spacing-l);
 
   &.small {
     --min-height: 180px;

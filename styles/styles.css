@@ -508,6 +508,18 @@ main .section {
   &:first-of-type {
     padding-top: 0;
   }
+
+  &.text-align-center {
+    text-align: center;
+  }
+
+  &.text-align-left {
+    text-align: left;
+  }
+
+  &.text-align-right {
+    text-align: right;
+  }
 }
 
 /* color theme styles */
@@ -545,6 +557,8 @@ main .section {
     color: var(--color-mohegan-red);
   }
 }
+
+.text-align
 
 aem-sidekick {
   display: none;

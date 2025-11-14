@@ -81,6 +81,12 @@ async function handleLayout(text, section, type) {
   section.classList.add(`${type}-${text}`);
 }
 
+function handleTextAlign(text, section) {
+  if (text && ['left', 'center', 'right'].includes(text)) {
+    section.classList.add(`text-align-${text}`);
+  }
+}
+
 const getMetadata = (el) => [...el.childNodes].reduce((rdx, row) => {
   if (row.children) {
     const key = row.children[0].textContent.trim().toLowerCase();
@@ -100,6 +106,7 @@ export default async function init(el) {
   if (metadata.gap?.text) handleLayout(metadata.gap.text, section, 'gap');
   if (metadata.spacing?.text) handleLayout(metadata.spacing.text, section, 'spacing');
   if (metadata.container?.text) handleLayout(metadata.container.text, section, 'container');
+  if (metadata['text-align']?.text) handleTextAlign(metadata['text-align'].text, section);
   if (metadata['background-color']?.content) handleBackground(metadata['background-color'].content, section);
   if (metadata['background-image']?.content) handleBackground(metadata['background-image'].content, section);
   if (metadata.background?.content) handleBackground(metadata.background, section);
