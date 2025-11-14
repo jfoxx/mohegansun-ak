@@ -36,9 +36,21 @@ export default async function init(el) {
   
   // Check if foreground only contains a single image and nothing else
   const fgPicture = fg.querySelector('picture');
-  const fgChildren = [...fg.children];
-  const onlyHasImage = fgPicture && fgChildren.length === 1 && fgChildren[0].tagName === 'P' 
-    && fgChildren[0].children.length === 1 && fgChildren[0].querySelector('picture');
+  const hasHeadings = fg.querySelector('h1, h2, h3, h4, h5, h6');
+  const hasNonImageLinks = fg.querySelector('a:not(:has(picture)):not(:has(img))');
+  
+  // Check for text nodes that are not just whitespace and not inside picture/img
+  let hasTextContent = false;
+  const walker = document.createTreeWalker(fg, NodeFilter.SHOW_TEXT, null);
+  let node;
+  while (node = walker.nextNode()) {
+    if (node.textContent.trim() && !node.parentElement.closest('picture')) {
+      hasTextContent = true;
+      break;
+    }
+  }
+  
+  const onlyHasImage = fgPicture && !hasHeadings && !hasNonImageLinks && !hasTextContent;
   
   if (rows.length === 0 && onlyHasImage) {
     // Move the single image to background
