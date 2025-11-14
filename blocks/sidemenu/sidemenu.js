@@ -43,9 +43,13 @@ export default async function init(el) {
     const items = el.querySelectorAll('li');
     items.forEach(
       (li) => {
-        if (!li.querySelector('a')) {
-          if (li.querySelector('p')) {
-            makeLink(li.querySelector('p'));
+        const p = li.querySelector(':scope > p');
+        const hasDirectLink = p ? p.querySelector('a') : li.querySelector(':scope > a');
+        
+        if (!hasDirectLink) {
+          // Create fake link if no direct link exists
+          if (p) {
+            makeLink(p);
           } else {
             makeLink(li);
           }
