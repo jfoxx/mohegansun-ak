@@ -1,5 +1,5 @@
 .columns {
-  --columns-gap: 0;
+  --columns-gap: 30px;
 
   display: grid;
   gap: var(--columns-gap);
@@ -77,10 +77,18 @@
       align-items: start;
     }
   }
+
+  &.center-text {
+    p {
+      text-align: center;
+    }
+  }
 }
 
 @media (width >= 900px) {
   .columns {
+    max-width: 1200px;
+    margin: 0 auto;
     .row {
       grid-template-columns: repeat(var(--child-count), 1fr);
     }
