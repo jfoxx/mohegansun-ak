@@ -60,10 +60,12 @@ function bindEvents(block) {
   });
 
   block.querySelector('.slide-prev').addEventListener('click', () => {
-    showSlide(block, parseInt(block.dataset.activeSlide, 10) - 1);
+    const currentSlide = parseInt(block.dataset.activeSlide, 10) || 0;
+    showSlide(block, currentSlide - 1);
   });
   block.querySelector('.slide-next').addEventListener('click', () => {
-    showSlide(block, parseInt(block.dataset.activeSlide, 10) + 1);
+    const currentSlide = parseInt(block.dataset.activeSlide, 10) || 0;
+    showSlide(block, currentSlide + 1);
   });
 
   const slideObserver = new IntersectionObserver((entries) => {
@@ -172,11 +174,16 @@ export default async function decorate(block) {
   block.prepend(container);
 
     if (!isSingleSlide) {
+    // Initialize active slide to 0 if not already set
+    if (!block.dataset.activeSlide) {
+      block.dataset.activeSlide = '0';
+    }
+    
     bindEvents(block);
 
     // Auto-advance every 5 seconds
     let autoAdvance = setInterval(() => {
-      const current = parseInt(block.dataset.activeSlide || '0', 10);
+      const current = parseInt(block.dataset.activeSlide, 10) || 0;
       showSlide(block, current + 1);
     }, 5000);
 
@@ -184,14 +191,14 @@ export default async function decorate(block) {
     block.addEventListener('mouseenter', () => clearInterval(autoAdvance));
     block.addEventListener('mouseleave', () => {
       autoAdvance = setInterval(() => {
-        const current = parseInt(block.dataset.activeSlide || '0', 10);
+        const current = parseInt(block.dataset.activeSlide, 10) || 0;
         showSlide(block, current + 1);
       }, 5000);
     });
     block.addEventListener('focusin', () => clearInterval(autoAdvance));
     block.addEventListener('focusout', () => {
       autoAdvance = setInterval(() => {
-        const current = parseInt(block.dataset.activeSlide || '0', 10);
+        const current = parseInt(block.dataset.activeSlide, 10) || 0;
         showSlide(block, current + 1);
       }, 5000);
     });
