@@ -71,13 +71,21 @@ function createEventDetails() {
     const onsaleDiv = document.createElement('div');
     onsaleDiv.className = 'event-onsale';
     
-    // Check if onsale date is in the past
-    const [month, day, year] = onsale.split('/');
-    const onsaleDate = new Date(year, month - 1, day);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to midnight for comparison
+    let onsaleText;
     
-    const onsaleText = onsaleDate < today ? 'Now' : formatDate(onsale);
+    // Check if it's already "Now"
+    if (onsale.toLowerCase() === 'now') {
+      onsaleText = 'Now';
+    } else {
+      // Check if onsale date is in the past
+      const [month, day, year] = onsale.split('/');
+      const onsaleDate = new Date(year, month - 1, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to midnight for comparison
+      
+      onsaleText = onsaleDate < today ? 'Now' : formatDate(onsale);
+    }
+    
     onsaleDiv.innerHTML = `<strong>On-Sale:</strong> ${onsaleText}`;
     eventDetails.appendChild(onsaleDiv);
   }

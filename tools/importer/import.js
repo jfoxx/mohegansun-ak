@@ -9,95 +9,159 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-/* global WebImporter */
-/* eslint-disable no-console, class-methods-use-this */
 
-const createSections = (main, document) => {
-  const sections = document.querySelectorAll('.main_content > .section');
-  sections.forEach((section) => {
-    if (section.textContent.trim() === '') return;
-    const hr = document.createElement('hr');
-    section.before(hr);
-  });
-}
+/**
+ * Extract event information from the page
+ */
+function extractEventInfo(document) {
+  const eventInfo = {};
 
-const createColumnsBlock = (main, document) => {
-  const columnsBlocks = document.querySelectorAll('.col_2:not(.col_2:has(.columns), .col_3:not(.col_3:has(.columns)');
-  if (columnsBlocks !== null) {
-    columnsBlocks.forEach(cb => {
-      const cells = [['Columns']];
-      const columns = cb.querySelectorAll('.cell');
-      columns.forEach(c => {
-        cells.push([c.cloneNode(true)]);
-      });
-      const block = WebImporter.DOMUtils.createTable(cells, document);
-      cb.after(block);
-      cb.remove();
-    });
+  // Find event location - look for element with .event_operations_venue class
+  const venueElement = document.querySelector('.event_operations_venue');
+  if (venueElement) {
+    // Extract just the venue name, removing "at" prefix if present
+    const venueText = venueElement.textContent.trim();
+    eventInfo.location = venueText.replace(/^at\s+/i, '').trim();
   }
-}
 
-const boxedH1 = (main, document) => {
-  const boxed = document.querySelectorAll('.box:has(h1)');
-  boxed.forEach(box => {
-    const h1 = box.querySelector('h1');
-    const cells = [
-      ['Title (boxed)'],
-      [h1.cloneNode(true)]
-    ]
-    const block = WebImporter.DOMUtils.createTable(cells, document);
-    h1.after(block);
-    h1.remove();
-  });
-}
-
-const createCarouselBlock = (main, document) => {
-  const carousels = document.querySelectorAll('.slides-wrapper');
-
-  carousels.forEach((carousel) => {
-    const cells = [['Carousel']];
-
-    const slides = carousel.querySelectorAll('.slides');
-
-    slides.forEach((slide) => {
-      const heroOption = slide.querySelector('.hero-option');
-      const title = heroOption?.querySelector('h2');
-      const text = heroOption?.querySelector('p');
-      const link = heroOption?.querySelector('a');
-
-      const content = document.createElement('div');
-
-      if (title) content.append(title.cloneNode(true));
-      if (text) content.append(text.cloneNode(true));
-      if (link) content.append(link.cloneNode(true));
-
-      const img = slide.querySelector('img');
-      if (!img) return;
-
-      if (content.childNodes.length > 0) {
-        // Two-column row
-        cells.push([
-          img.cloneNode(true),
-          content
-        ]);
-      } else {
-        // One-column row
-        cells.push([
-          img.cloneNode(true)
-        ]);
-      }
-    });
-
-    if (cells.length > 1) {
-      const block = WebImporter.DOMUtils.createTable(cells, document);
-      carousel.after(block);
+  // Find date and time - look for patterns in the page
+  const elements = Array.from(document.querySelectorAll('p, div, h2, h3'));
+  for (const el of elements) {
+    const text = el.textContent.trim();
+    
+    // Match date patterns like "Thursday, November 20th 2025" or "Friday, July 19th"
+    const dateMatch = text.match(/([A-Z][a-z]+day),?\s+([A-Z][a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)(?:\s+(\d{4}))?/i);
+    if (dateMatch && !eventInfo.date) {
+      const [, , month, day, year] = dateMatch;
+      const monthNum = new Date(`${month} 1`).getMonth() + 1;
+      const yearValue = year || new Date().getFullYear();
+      eventInfo.date = `${monthNum}/${day}/${yearValue}`;
     }
 
-    carousel.remove();
-  });
-};
+    // Match time patterns like "8:00pm" or "8:00 pm"
+    const timeMatch = text.match(/(\d{1,2}):(\d{2})\s*(pm|am)/i);
+    if (timeMatch && !eventInfo.time) {
+      eventInfo.time = `${timeMatch[1]}:${timeMatch[2]}${timeMatch[3].toLowerCase()}`;
+    }
+  }
 
+  // Find artist website
+  const websiteLink = Array.from(document.querySelectorAll('a')).find(a => 
+    a.textContent.match(/view\s+website/i) && !a.href.includes('mohegansun.com')
+  );
+  if (websiteLink) {
+    eventInfo.artistWebsite = websiteLink.href;
+  }
 
+  // Find ticket link
+  const ticketLink = Array.from(document.querySelectorAll('a')).find(a => 
+    a.textContent.match(/purchase\s+tickets|buy\s+tickets/i) || a.href.includes('ticketmaster.com')
+  );
+  if (ticketLink) {
+    eventInfo.tickets = ticketLink.href;
+  } else {
+    // Check if it's a free event
+    const freeText = Array.from(document.querySelectorAll('*')).find(el => 
+      el.textContent.match(/admission\s+is\s+free|free\s+admission|no\s+cover/i)
+    );
+    if (freeText) {
+      eventInfo.tickets = 'free';
+    }
+  }
+
+  // Find on-sale date
+  const onsaleText = Array.from(document.querySelectorAll('p, div')).find(el => 
+    el.textContent.match(/on-sale/i)
+  );
+  if (onsaleText) {
+    const text = onsaleText.textContent;
+    const onsaleMatch = text.match(/on-sale:?\s*(.+)/i);
+    if (onsaleMatch) {
+      const dateText = onsaleMatch[1].trim();
+      // Try to parse the date
+      if (dateText.toLowerCase() === 'now') {
+        eventInfo.onsale = 'Now';
+      } else {
+        // Try to extract MM/DD/YYYY format
+        const dateMatch = dateText.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (dateMatch) {
+          eventInfo.onsale = `${dateMatch[1]}/${dateMatch[2]}/${dateMatch[3]}`;
+        } else {
+          // Try to parse natural date format
+          const naturalMatch = dateText.match(/([A-Z][a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/i);
+          if (naturalMatch) {
+            const [, month, day, year] = naturalMatch;
+            const monthNum = new Date(`${month} 1`).getMonth() + 1;
+            eventInfo.onsale = `${monthNum}/${day}/${year}`;
+          }
+        }
+      }
+    }
+  }
+
+  return eventInfo;
+}
+
+/**
+ * Create metadata block for event pages
+ */
+function createMetadata(main, document, eventInfo, firstParagraph) {
+  const meta = {};
+
+  // Template
+  meta.template = 'event';
+
+  // Title - from h1 or h2
+  const title = main.querySelector('h1, h2');
+  if (title) {
+    meta.title = title.textContent.trim();
+  }
+
+  // Description - from first body paragraph
+  if (firstParagraph) {
+    meta.description = firstParagraph.textContent.trim();
+  }
+
+  // Image - from og:image meta tag
+  const metaImage = document.querySelector('meta[property="og:image"]');
+  if (metaImage) {
+    meta.image = metaImage.content;
+  }
+
+  // Event-specific metadata from extracted info
+  if (eventInfo.location) {
+    meta['event-location'] = eventInfo.location;
+  }
+
+  if (eventInfo.date) {
+    meta['event-date'] = eventInfo.date;
+  }
+
+  if (eventInfo.time) {
+    meta['event-time'] = eventInfo.time;
+  }
+
+  if (eventInfo.artistWebsite) {
+    meta['artist-website'] = eventInfo.artistWebsite;
+  }
+
+  if (eventInfo.tickets) {
+    meta.tickets = eventInfo.tickets;
+  }
+
+  if (eventInfo.onsale) {
+    meta.onsale = eventInfo.onsale;
+  }
+
+  // Color theme - default to purple
+  meta['color-theme'] = 'purple';
+
+  // Create metadata block
+  const block = WebImporter.Blocks.getMetadataBlock(document, meta);
+  main.append(block);
+
+  return meta;
+}
 
 export default {
   /**
@@ -109,94 +173,124 @@ export default {
    * @param {object} params Object containing some parameters given by the import process.
    * @returns {HTMLElement} The root element to be transformed
    */
-  transform: ({
-    // eslint-disable-next-line no-unused-vars
-    document, url, html, params,
-  }) => {
-    // define the main element: the one that will be transformed to Markdown
-    const main = document.body;
-    createColumnsBlock(main, document);
-    boxedH1(main, document);
-    createSections(main, document);
-    createCarouselBlock(main, document);
-    // attempt to remove non-content elements
-    WebImporter.DOMUtils.remove(main, [
+  transformDOM: ({ document, url, html, params }) => {
+    // Check if this is an event page
+    const isEventPage = url.includes('/schedule-of-events/') || 
+                       url.includes('/events-and-promotions/');
+
+    if (!isEventPage) {
+      // For non-event pages, use default transformation
+      return document.body;
+    }
+
+    // Extract event information
+    const eventInfo = extractEventInfo(document);
+
+    // Use helper to remove header, footer and other elements
+    WebImporter.DOMUtils.remove(document, [
       'header',
-      '.header',
-      'nav',
-      '.nav',
       'footer',
+      'nav',
+      '.header',
       '.footer',
-      'iframe',
+      '.navigation',
+      '.breadcrumb',
+      'script',
       'noscript',
-      '.hero_arc',
+      'style',
     ]);
 
-    WebImporter.rules.createMetadata(main, document);
-    WebImporter.rules.transformBackgroundImages(main, document);
-    WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
-    WebImporter.rules.convertIcons(main, document);
+    const main = document.body;
 
-    const ret = [];
+    // Create a new structure for the event page
+    const sections = [];
 
-    const path = ((u) => {
-      let p = new URL(u).pathname;
-      if (p.endsWith('/')) {
-        p = `${p}index`;
-      }
-      return decodeURIComponent(p)
-        .toLowerCase()
-        .replace(/\.html$/, '')
-        .replace(/[^a-z0-9/]/gm, '-');
-    })(url);
+    // Section 1: Hero with image and title
+    const heroSection = document.createElement('div');
+    
+    // Find the main event image
+    const mainImage = main.querySelector('img[alt], img[src*="media_"]');
+    if (mainImage) {
+      const heroDiv = document.createElement('div');
+      const heroContent = document.createElement('div');
+      const heroPicture = mainImage.closest('picture') || mainImage;
+      heroContent.append(heroPicture.cloneNode(true));
+      heroDiv.append(heroContent);
+      
+      // Create hero block
+      const heroBlock = WebImporter.DOMUtils.createTable([
+        ['Hero'],
+        [heroDiv],
+      ], document);
+      heroSection.append(heroBlock);
+    }
 
-    // multi output import
+    // Add the title
+    const title = main.querySelector('h1, h2');
+    if (title) {
+      heroSection.append(title.cloneNode(true));
+    }
 
-    // first, the main content
-    ret.push({
-      element: main,
-      path,
+    // Add the description/body paragraphs
+    const paragraphs = Array.from(main.querySelectorAll('p')).filter(p => {
+      const text = p.textContent.trim();
+      // Filter out navigation, links, and very short paragraphs
+      return text.length > 50 && 
+             !text.match(/^(on-sale|view|purchase|at\s+[A-Z])/i) &&
+             !p.querySelector('a[href*="ticketmaster"]');
     });
 
-    main.querySelectorAll('img').forEach((img) => {
-      console.log(img.outerHTML);
-      const src = img.src;
-      if (src) {
-        const u = new URL(src);
-        // then, all images
-        ret.push({
-          from: src,
-          path: u.pathname,
-        });
-        // adjust the src to be relative to the current page
-        const imgpath = (u.pathname).toLowerCase().replace('%20', '-').replace(/[^a-z0-9/.]/gm, '-').split('/').pop();
-        img.src = `https://content.da.live/jfoxx/mohegansun-da/images/${imgpath}`;
-      }
+    // Keep reference to first paragraph for metadata description
+    const firstParagraph = paragraphs[0];
+
+    paragraphs.forEach(p => {
+      heroSection.append(p.cloneNode(true));
     });
 
-    return ret;
+    // Add section metadata for center alignment
+    const sectionMetadata = WebImporter.DOMUtils.createTable([
+      ['Section Metadata'],
+      ['text-align', 'center'],
+    ], document);
+    heroSection.append(sectionMetadata);
+
+    sections.push(heroSection);
+
+    // Section 2: Disclaimers (reference to fragment)
+    const disclaimerSection = document.createElement('div');
+    const disclaimerLink = document.createElement('a');
+    disclaimerLink.href = '/fragments/event-disclaimers';
+    disclaimerLink.textContent = '/fragments/event-disclaimers';
+    const disclaimerH3 = document.createElement('h3');
+    disclaimerH3.append(disclaimerLink);
+    disclaimerSection.append(disclaimerH3);
+    sections.push(disclaimerSection);
+
+    // Clear main and add sections
+    main.innerHTML = '';
+    sections.forEach(section => main.append(section));
+
+    // Create metadata block
+    createMetadata(main, document, eventInfo, firstParagraph);
+
+    return main;
   },
 
   /**
    * Return a path that describes the document being transformed (file name, nesting...).
    * The path is then used to create the corresponding Word document.
+   * @param {String} url The url of the document being transformed.
    * @param {HTMLDocument} document The document
-   * @param {string} url The url of the page imported
-   * @param {string} html The raw html (the document is cleaned up during preprocessing)
-   * @param {object} params Object containing some parameters given by the import process.
-   * @return {string} The path
    */
-  generateDocumentPath: ({
-    // eslint-disable-next-line no-unused-vars
-    document, url, html, params,
-  }) => {
-    let p = new URL(url).pathname;
-    if (p.endsWith('/')) {
-      p = `${p}index`;
+  generateDocumentPath: ({ document, url }) => {
+    // Extract path from URL
+    let path = new URL(url).pathname;
+    
+    // Remove .html extension if present
+    if (path.endsWith('.html')) {
+      path = path.slice(0, -5);
     }
-    return decodeURIComponent(p)
-      .toLowerCase()
-      .replace(/\.html$/, '')
-      .replace(/[^a-z0-9/]/gm, '-');
+    
+    return path;
   },
 };
