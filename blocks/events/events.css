@@ -1,0 +1,313 @@
+.events {
+  padding: 2rem 0;
+}
+
+.events-loading,
+.events-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-gray-600);
+  font-size: 1.125rem;
+}
+
+/* Filter Styles */
+.events-filters {
+  background: linear-gradient(90deg, var(--color-mohegan-teal) 0%, var(--color-mohegan-green) 100%);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: var(--grid-container-width);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.events-filters-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.events-filter-icon {
+  width: 3rem !important;
+  height: 3rem !important;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.events-filter-select {
+  background: var(--color-mohegan-orange);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 2rem 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1rem;
+  min-width: 150px;
+}
+
+.events-filter-select:hover {
+  background-color: #d04700;
+}
+
+.events-filter-select option {
+  background: white;
+  color: var(--color-gray-900);
+}
+
+.events-filter-results {
+  display: flex;
+  gap: 2rem;
+  color: white;
+}
+
+.events-filter-results > div {
+  text-align: center;
+}
+
+.events-filter-results .count {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.events-filter-results .label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.events-no-results {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--color-gray-600);
+  font-size: 1.125rem;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: var(--grid-container-width);
+  margin: 0 auto;
+}
+
+.event-card {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.event-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.event-card-image {
+  position: relative;
+  width: 100%;
+  padding-top: 75%; /* 4:3 aspect ratio */
+  background: var(--color-gray-200);
+  overflow: hidden;
+}
+
+.event-card-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-card-content {
+  padding: 1rem;
+  position: relative;
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-left: -1rem;
+  margin-top: -1rem;
+  margin-right: -1rem;
+}
+
+.event-card-date-box {
+  background: var(--color-mohegan-teal);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0 0 4px 0; /* Only bottom-right corner rounded */
+  text-align: center;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.event-date-day {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.5px;
+}
+
+.event-date-monthday {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.event-card-category {
+  flex: 1;
+  text-align: right;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  text-transform: uppercase;
+  padding-top: 1rem;
+  padding-right: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.event-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+  color: var(--color-mohegan-blue);
+  line-height: 1.3;
+  text-align: left;
+}
+
+.event-card-meta {
+  font-size: 0.95rem;
+  color: var(--color-mohegan-red);
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.event-card-button {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  background: linear-gradient(90deg, var(--color-mohegan-orange) 0, var(--color-mohegan-red) 100%);
+  border: 2px solid var(--color-mohegan-red);
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  text-align: center;
+  text-transform: uppercase;
+  transition: background 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.event-card-link:hover .event-card-button {
+  background: var(--color-mohegan-red);
+}
+
+@media (width >= 768px) {
+  .events-filters {
+    padding: 1.5rem;
+  }
+
+  .events-filters-controls {
+    gap: 1.5rem;
+  }
+
+  .events-filter-select {
+    font-size: 1rem;
+    padding: 1rem 2.5rem 1rem 1.25rem;
+  }
+
+  .events-grid {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2.5rem;
+  }
+
+  .event-card-content {
+    padding: 1.25rem;
+  }
+
+  .event-card-header {
+    margin-left: -1.25rem;
+    margin-top: -1.25rem;
+    margin-right: -1.25rem;
+  }
+
+  .event-card-title {
+    font-size: 1.5rem;
+  }
+
+  .event-card-meta {
+    font-size: 1rem;
+  }
+
+  .event-date-day {
+    font-size: 0.85rem;
+  }
+
+  .event-date-monthday {
+    font-size: 1.5rem;
+  }
+
+  .event-card-category {
+    font-size: 0.85rem;
+    padding-right: 1.25rem;
+  }
+}
+
+@media (width <= 767px) {
+  .events-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .events-filters-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .events-filter-select {
+    width: 100%;
+  }
+
+  .events-filter-results {
+    justify-content: space-around;
+    width: 100%;
+  }
+}
+
+@media (width >= 1200px) {
+  .events-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

@@ -70,11 +70,15 @@ indices:
         select: head > meta[name="event-time"]
         value: |
           attribute(el, "content")
-      eventLocation:
-        select: head > meta[name="event-location"]
-        value: |
-          attribute(el, "content")
-      image:
+    eventLocation:
+      select: head > meta[name="event-location"]
+      value: |
+        attribute(el, "content")
+    eventType:
+      select: head > meta[name="event-type"]
+      value: |
+        attribute(el, "content")
+    image:
         select: head > meta[property="og:image"]
         value: |
           match(attribute(el, "content"), "https:\/\/[^/]+(/.*)")
