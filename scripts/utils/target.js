@@ -63,8 +63,17 @@ function setTargetPageParams() {
     const contentDiv = fragmentContent.querySelector('div');
     if (!contentDiv) return;
     
+    // Preserve critical attributes before clearing
+    const slideIndex = slideEl.dataset.slideIndex;
+    const slideId = slideEl.id;
+    const ariaLabelledBy = slideEl.getAttribute('aria-labelledby');
+    
     // Clear the slide
     slideEl.innerHTML = '';
+    
+    // Restore attributes
+    if (slideIndex !== undefined) slideEl.dataset.slideIndex = slideIndex;
+    if (slideId) slideEl.id = slideId;
     
     // Get the picture from the first paragraph
     const pictureParagraph = contentDiv.querySelector('p:has(picture)');
@@ -86,7 +95,15 @@ function setTargetPageParams() {
     const paragraphs = [...contentDiv.querySelectorAll('p')].filter(p => !p.querySelector('picture'));
     
     if (heading) {
-      carouselContentDiv.appendChild(heading.cloneNode(true));
+      const clonedHeading = heading.cloneNode(true);
+      // Update aria-labelledby with the heading id
+      if (clonedHeading.id) {
+        slideEl.setAttribute('aria-labelledby', clonedHeading.id);
+      }
+      carouselContentDiv.appendChild(clonedHeading);
+    } else if (ariaLabelledBy) {
+      // Restore original if no heading found
+      slideEl.setAttribute('aria-labelledby', ariaLabelledBy);
     }
     
     const buttonParagraphs = [];
