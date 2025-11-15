@@ -59,24 +59,20 @@ function setTargetPageParams() {
   }
   
   async function transformPromoToCarouselSlide(fragmentContent, slideEl) {
-    // Find the promo block content
-    const promoBlock = fragmentContent.querySelector('.promo');
-    if (!promoBlock) return;
-    
-    const rows = promoBlock.querySelectorAll(':scope > div > div');
-    if (rows.length < 2) return;
-    
-    // Get image and content
-    const imageDiv = rows[0];
-    const contentDiv = rows[1];
+    // Find the content div (first div in fragment)
+    const contentDiv = fragmentContent.querySelector('div');
+    if (!contentDiv) return;
     
     // Clear the slide
     slideEl.innerHTML = '';
     
+    // Get the picture from the first paragraph
+    const pictureParagraph = contentDiv.querySelector('p:has(picture)');
+    const picture = pictureParagraph?.querySelector('picture');
+    
     // Create carousel slide image
     const carouselImageDiv = document.createElement('div');
     carouselImageDiv.className = 'carousel-slide-image';
-    const picture = imageDiv.querySelector('picture');
     if (picture) {
       carouselImageDiv.appendChild(picture.cloneNode(true));
     }
@@ -85,9 +81,9 @@ function setTargetPageParams() {
     const carouselContentDiv = document.createElement('div');
     carouselContentDiv.className = 'carousel-slide-content';
     
-    // Copy all content from the promo content div
+    // Get all content elements except the picture paragraph
     const heading = contentDiv.querySelector('h1, h2, h3, h4, h5, h6');
-    const paragraphs = contentDiv.querySelectorAll('p');
+    const paragraphs = [...contentDiv.querySelectorAll('p')].filter(p => !p.querySelector('picture'));
     
     if (heading) {
       carouselContentDiv.appendChild(heading.cloneNode(true));
