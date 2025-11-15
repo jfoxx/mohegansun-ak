@@ -8,7 +8,8 @@ async function fetchEvents() {
       throw new Error('Failed to fetch events');
     }
     const json = await response.json();
-    return json.data || [];
+    // Filter out entries where path ends with /
+    return (json.data || []).filter(event => event.path && !event.path.endsWith('/'));
   } catch (error) {
     console.error('Error fetching events:', error);
     return [];
@@ -173,16 +174,52 @@ function getUniqueVenues(events) {
 }
 
 /**
- * Get unique types from events
+ * Get unique types from events with labels
  */
 function getUniqueTypes(events) {
-  const types = new Set();
+  const typesMap = new Map();
+  
+  // Mapping of type values to display labels
+  const typeLabels = {
+    'conventions': 'Conventions & Expos',
+    'tastings': 'Food, Tastings & Festivals',
+    'comedy': 'Comedy',
+    'country': 'Country',
+    'hotel-package': 'Hotel Package',
+    'nightlife': 'Nightlife',
+    'dance': 'Dance',
+    'rnb': 'R & B',
+    'pop': 'Pop',
+    'latin': 'Latin',
+    'rap': 'Rap',
+    'rock': 'Rock',
+    'sports-entertainment': 'Sports',
+    'boxing': 'Boxing',
+    'folk': 'Folk',
+    'blues': 'Blues',
+    'jazz': 'Jazz',
+    'family': 'Family',
+    'tribute': 'Tribute Bands',
+    'asian': 'Asian',
+    'holiday': 'Holiday',
+    'classical': 'Classical',
+    'oldies': 'Oldies',
+    'new-years-eve': 'NYE',
+    'sun-winefoodfest': 'Sun Wine & Food Fest',
+    'brunch': 'Brunch',
+  };
+  
   events.forEach(event => {
     if (event.eventType) {
-      types.add(event.eventType);
+      const label = typeLabels[event.eventType] || event.eventType;
+      typesMap.set(event.eventType, label);
     }
   });
-  return Array.from(types).sort();
+  
+  // Sort by label
+  return Array.from(typesMap.entries())
+    .sort((a, b) => a[1].localeCompare(b[1]))
+    .map(([value, label]) => ({ value, label }));
 }
 
 /**
@@ -223,35 +260,7 @@ function createFilterUI(events) {
   typeSelect.className = 'events-filter-select';
   typeSelect.innerHTML = '<option value="">All Types</option>';
   
-  const eventTypes = [
-    { value: 'conventions', label: 'Conventions & Expos' },
-    { value: 'tastings', label: 'Food, Tastings & Festivals' },
-    { value: 'comedy', label: 'Comedy' },
-    { value: 'country', label: 'Country' },
-    { value: 'hotel-package', label: 'Hotel Package' },
-    { value: 'nightlife', label: 'Nightlife' },
-    { value: 'dance', label: 'Dance' },
-    { value: 'rnb', label: 'R & B' },
-    { value: 'pop', label: 'Pop' },
-    { value: 'latin', label: 'Latin' },
-    { value: 'rap', label: 'Rap' },
-    { value: 'rock', label: 'Rock' },
-    { value: 'sports-entertainment', label: 'Sports' },
-    { value: 'boxing', label: 'Boxing' },
-    { value: 'folk', label: 'Folk' },
-    { value: 'blues', label: 'Blues' },
-    { value: 'jazz', label: 'Jazz' },
-    { value: 'family', label: 'Family' },
-    { value: 'tribute', label: 'Tribute Bands' },
-    { value: 'asian', label: 'Asian' },
-    { value: 'holiday', label: 'Holiday' },
-    { value: 'classical', label: 'Classical' },
-    { value: 'oldies', label: 'Oldies' },
-    { value: 'new-years-eve', label: 'NYE' },
-    { value: 'sun-winefoodfest', label: 'Sun Wine & Food Fest' },
-    { value: 'brunch', label: 'Brunch' },
-  ];
-  
+  const eventTypes = getUniqueTypes(events);
   eventTypes.forEach(type => {
     const option = document.createElement('option');
     option.value = type.value;
