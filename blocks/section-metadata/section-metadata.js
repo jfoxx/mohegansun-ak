@@ -87,6 +87,12 @@ function handleTextAlign(text, section) {
   }
 }
 
+function handleTextSize(text, section) {
+  if (text && ['larger', 'large', 'small'].includes(text)) {
+    section.classList.add(`text-size-${text}`);
+  }
+}
+
 const getMetadata = (el) => [...el.childNodes].reduce((rdx, row) => {
   if (row.children) {
     const key = row.children[0].textContent.trim().toLowerCase();
@@ -107,6 +113,7 @@ export default async function init(el) {
   if (metadata.spacing?.text) handleLayout(metadata.spacing.text, section, 'spacing');
   if (metadata.container?.text) handleLayout(metadata.container.text, section, 'container');
   if (metadata['text-align']?.text) handleTextAlign(metadata['text-align'].text, section);
+  if (metadata['text-size']?.text) handleTextSize(metadata['text-size'].text, section);
   if (metadata['background-color']?.content) handleBackground(metadata['background-color'].content, section);
   if (metadata['background-image']?.content) handleBackground(metadata['background-image'].content, section);
   if (metadata.background?.content) handleBackground(metadata.background, section);

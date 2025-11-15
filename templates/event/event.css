@@ -1,0 +1,96 @@
+.event-template {
+  h1 {
+    font-size: var(--heading-font-size-xxxl);
+    color: var(--color-mohegan-teal);
+  }
+}
+
+.event-details {
+  margin: 2rem auto;
+  padding: 2rem;
+  max-width: var(--grid-container-width);
+  text-align: center;
+  color: var(--color-mohegan-purple);
+}
+
+.event-location {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.event-location .event-label {
+  font-weight: 300;
+  font-style: italic;
+}
+
+.event-location .event-venue {
+  font-weight: 600;
+}
+
+.event-datetime {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.event-time {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.event-tickets-btn {
+  display: inline-block;
+  margin: 1.5rem 0;
+  padding: 1rem 3rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.event-onsale {
+  margin-top: 2rem;
+  font-size: 1rem;
+  color: var(--color-gray-600);
+}
+
+.event-onsale strong {
+  font-weight: 700;
+}
+
+.event-links {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.event-links a {
+  color: var(--color-mohegan-purple);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.event-links a:hover {
+  color: var(--color-mohegan-purple-dark);
+}
+
+.event-links strong {
+  font-weight: 700;
+  color: var(--color-gray-700);
+}
+
+@media (width >= 768px) {
+  .event-details {
+    padding: 1rem 2rem;
+  }
+
+  .event-location {
+    font-size: 2rem;
+  }
+
+  .event-datetime,
+  .event-time {
+    font-size: 1.5rem;
+  }
+}
+

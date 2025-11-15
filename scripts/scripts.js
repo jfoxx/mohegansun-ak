@@ -1,4 +1,4 @@
-import { loadArea, setConfig } from './ak.js';
+import { loadArea, setConfig, getMetadata, getConfig } from './ak.js';
 
 const hostnames = ['authorkit.dev'];
 
@@ -34,7 +34,28 @@ const decorateArea = ({ area = document }) => {
   eagerLoad(area, 'img');
 };
 
+// Load template JavaScript
+async function loadTemplateJS() {
+  const template = getMetadata('template');
+  if (!template) return;
+  
+  const { codeBase } = getConfig();
+  
+  try {
+    const mod = await import(`${codeBase}/templates/${template}/${template}.js`);
+    if (mod.default) {
+      await mod.default();
+    }
+  } catch (error) {
+    // Template JS is optional, only log if it exists but has errors
+    if (!error.message.includes('Failed to fetch')) {
+      console.error(`Error loading template ${template}:`, error);
+    }
+  }
+}
+
 (async function loadPage() {
   setConfig({ hostnames, locales, widgets, components, decorateArea });
   await loadArea();
+  await loadTemplateJS();
 }());

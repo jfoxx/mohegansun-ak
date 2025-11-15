@@ -133,6 +133,26 @@
     height: 100%;
     width: 100%;
   }
+
+  &.text-size-larger {
+    font-size: var(--body-font-size-xxxl);
+  }
+
+  &.text-size-large {
+    font-size: var(--body-font-size-xxl);
+  }
+
+  &.text-size-small {
+    font-size: var(--body-font-size-xs);
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-size: var(--heading-font-size-xs);
+    }
+  }
 }
 
 main .section {
