@@ -93,20 +93,60 @@ function setTargetPageParams() {
       carouselContentDiv.appendChild(heading.cloneNode(true));
     }
     
+    const buttonParagraphs = [];
+    const textParagraphs = [];
+    
+    // Separate button paragraphs from text paragraphs
     paragraphs.forEach((p) => {
-      const clonedP = p.cloneNode(true);
-      // Wrap links in button-container if they exist
-      const link = clonedP.querySelector('a');
+      const link = p.querySelector('a');
       if (link) {
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'button-container';
-        link.className = 'button';
-        buttonContainer.appendChild(link);
-        carouselContentDiv.appendChild(buttonContainer);
-      } else if (clonedP.textContent.trim()) {
-        carouselContentDiv.appendChild(clonedP);
+        buttonParagraphs.push(p);
+      } else if (p.textContent.trim()) {
+        textParagraphs.push(p);
       }
     });
+    
+    // Add text paragraphs
+    textParagraphs.forEach((p) => {
+      carouselContentDiv.appendChild(p.cloneNode(true));
+    });
+    
+    // Create button group if there are buttons
+    if (buttonParagraphs.length > 0) {
+      const btnGroup = document.createElement('p');
+      btnGroup.className = 'btn-group';
+      
+      buttonParagraphs.forEach((p, index) => {
+        const link = p.querySelector('a');
+        if (link) {
+          const clonedLink = link.cloneNode(true);
+          clonedLink.classList.add('btn');
+          
+          // Determine button style based on emphasis markup
+          const isStrong = p.querySelector('strong');
+          const isEm = p.querySelector('em');
+          const isStrongEm = isStrong && isEm;
+          
+          if (isStrongEm) {
+            clonedLink.classList.add('btn-accent');
+          } else if (isStrong) {
+            clonedLink.classList.add('btn-primary');
+          } else if (isEm) {
+            clonedLink.classList.add('btn-secondary');
+          } else {
+            // Default to primary for first button, secondary for others
+            clonedLink.classList.add(index === 0 ? 'btn-primary' : 'btn-secondary');
+          }
+          
+          btnGroup.appendChild(clonedLink);
+          if (index < buttonParagraphs.length - 1) {
+            btnGroup.appendChild(document.createTextNode(' '));
+          }
+        }
+      });
+      
+      carouselContentDiv.appendChild(btnGroup);
+    }
     
     slideEl.appendChild(carouselImageDiv);
     slideEl.appendChild(carouselContentDiv);
@@ -123,6 +163,18 @@ function setTargetPageParams() {
         // Load the fragment content
         const fragmentContent = await loadFragment(href);
         await transformPromoToCarouselSlide(fragmentContent, el);
+        
+        // Trigger carousel to re-initialize or update
+        const carousel = el.closest('.carousel');
+        if (carousel) {
+          // Remove data-fragment attribute so it doesn't get processed again
+          el.removeAttribute('data-fragment');
+          
+          // Dispatch custom event to notify carousel of changes
+          carousel.dispatchEvent(new CustomEvent('carousel-slide-updated', { 
+            detail: { slide: el } 
+          }));
+        }
       } catch (error) {
         console.error('Failed to load carousel fragment:', error);
       }

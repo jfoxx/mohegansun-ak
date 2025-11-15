@@ -68,6 +68,18 @@ function bindEvents(block) {
   block.querySelectorAll('.carousel-slide').forEach((slide) => {
     slideObserver.observe(slide);
   });
+  
+  // Store observer on block for later access
+  block.slideObserver = slideObserver;
+  
+  // Listen for slide updates (e.g., from Adobe Target)
+  block.addEventListener('carousel-slide-updated', (e) => {
+    const { slide } = e.detail;
+    if (slide && slideObserver) {
+      // Re-observe the updated slide
+      slideObserver.observe(slide);
+    }
+  });
 }
 
 function createSlide(row, slideIndex, carouselId) {
