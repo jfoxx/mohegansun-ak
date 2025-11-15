@@ -1,6 +1,4 @@
-/**
- * Load Adobe Target.
- */
+import { getMetadata, loadBlock } from '../ak.js';
 
 function setTargetPageParams() {
     const script = document.createElement('script');
