@@ -168,22 +168,39 @@ function setTargetPageParams() {
   async function autoDecorateFragment(el) {
     const href = el.getAttribute('data-fragment');
     
-    // Check if this is a carousel slide
-    const isCarouselSlide = el.classList.contains('carousel-slide');
+    // Check if this is a carousel slide itself or inside one
+    const isCarouselSlideItself = el.classList.contains('carousel-slide');
+    const parentCarouselSlide = el.parentElement?.closest('.carousel-slide');
     
-    if (isCarouselSlide) {
+    if (isCarouselSlideItself && parentCarouselSlide) {
+      // Target injected an <li class="carousel-slide"> inside an existing slide
+      // Transform the parent slide, not this nested one
       try {
-        // Load the fragment content
+        const fragmentContent = await loadFragment(href);
+        await transformPromoToCarouselSlide(fragmentContent, parentCarouselSlide);
+        
+        // Remove the injected nested slide
+        el.remove();
+        
+        // Trigger carousel to re-initialize or update
+        const carousel = parentCarouselSlide.closest('.carousel');
+        if (carousel) {
+          carousel.dispatchEvent(new CustomEvent('carousel-slide-updated', { 
+            detail: { slide: parentCarouselSlide } 
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to load carousel fragment:', error);
+      }
+    } else if (isCarouselSlideItself) {
+      // This is a standalone carousel slide with data-fragment
+      try {
         const fragmentContent = await loadFragment(href);
         await transformPromoToCarouselSlide(fragmentContent, el);
         
-        // Trigger carousel to re-initialize or update
         const carousel = el.closest('.carousel');
         if (carousel) {
-          // Remove data-fragment attribute so it doesn't get processed again
           el.removeAttribute('data-fragment');
-          
-          // Dispatch custom event to notify carousel of changes
           carousel.dispatchEvent(new CustomEvent('carousel-slide-updated', { 
             detail: { slide: el } 
           }));
