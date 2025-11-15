@@ -1,4 +1,5 @@
 import { getMetadata, loadBlock } from '../ak.js';
+import { loadFragment } from '../../blocks/fragment/fragment.js';
 
 function setTargetPageParams() {
     const script = document.createElement('script');
@@ -57,15 +58,84 @@ function setTargetPageParams() {
     return document.querySelector(selector);
   }
   
-  function autoDecorateFragment(el) {
-    const a = document.createElement('a');
+  async function transformPromoToCarouselSlide(fragmentContent, slideEl) {
+    // Find the promo block content
+    const promoBlock = fragmentContent.querySelector('.promo');
+    if (!promoBlock) return;
+    
+    const rows = promoBlock.querySelectorAll(':scope > div > div');
+    if (rows.length < 2) return;
+    
+    // Get image and content
+    const imageDiv = rows[0];
+    const contentDiv = rows[1];
+    
+    // Clear the slide
+    slideEl.innerHTML = '';
+    
+    // Create carousel slide image
+    const carouselImageDiv = document.createElement('div');
+    carouselImageDiv.className = 'carousel-slide-image';
+    const picture = imageDiv.querySelector('picture');
+    if (picture) {
+      carouselImageDiv.appendChild(picture.cloneNode(true));
+    }
+    
+    // Create carousel slide content
+    const carouselContentDiv = document.createElement('div');
+    carouselContentDiv.className = 'carousel-slide-content';
+    
+    // Copy all content from the promo content div
+    const heading = contentDiv.querySelector('h1, h2, h3, h4, h5, h6');
+    const paragraphs = contentDiv.querySelectorAll('p');
+    
+    if (heading) {
+      carouselContentDiv.appendChild(heading.cloneNode(true));
+    }
+    
+    paragraphs.forEach((p) => {
+      const clonedP = p.cloneNode(true);
+      // Wrap links in button-container if they exist
+      const link = clonedP.querySelector('a');
+      if (link) {
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'button-container';
+        link.className = 'button';
+        buttonContainer.appendChild(link);
+        carouselContentDiv.appendChild(buttonContainer);
+      } else if (clonedP.textContent.trim()) {
+        carouselContentDiv.appendChild(clonedP);
+      }
+    });
+    
+    slideEl.appendChild(carouselImageDiv);
+    slideEl.appendChild(carouselContentDiv);
+  }
+  
+  async function autoDecorateFragment(el) {
     const href = el.getAttribute('data-fragment');
-    a.href = href;
-    a.className = 'at-element-marker';
-    const fragmentBlock = buildBlock('fragment', a);
-    el.replaceWith(fragmentBlock);
-    decorateBlock(fragmentBlock);
-    return loadBlock(fragmentBlock);
+    
+    // Check if this is a carousel slide
+    const isCarouselSlide = el.classList.contains('carousel-slide');
+    
+    if (isCarouselSlide) {
+      try {
+        // Load the fragment content
+        const fragmentContent = await loadFragment(href);
+        await transformPromoToCarouselSlide(fragmentContent, el);
+      } catch (error) {
+        console.error('Failed to load carousel fragment:', error);
+      }
+    } else {
+      // For non-carousel elements, load fragment directly
+      try {
+        const fragmentContent = await loadFragment(href);
+        el.innerHTML = '';
+        el.appendChild(fragmentContent);
+      } catch (error) {
+        console.error('Failed to load fragment:', error);
+      }
+    }
   }
   
   function observeAndDecorateBlocks() {
