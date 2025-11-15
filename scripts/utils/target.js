@@ -244,7 +244,11 @@ function setTargetPageParams() {
       window.adobe.target.applyOffers({ response });
       // keeping track of offers that were already applied
       // eslint-disable-next-line no-return-assign
-      options.forEach((o) => o.content = o.content.filter((c) => !getElementForOffer(c)));
+      options.forEach((o) => {
+        if (o.content && Array.isArray(o.content)) {
+          o.content = o.content.filter((c) => !getElementForOffer(c));
+        }
+      });
       // keeping track of metrics that were already applied
       metrics.map((m, i) => (getElementForMetric(m) ? i : -1))
         .filter((i) => i >= 0)
