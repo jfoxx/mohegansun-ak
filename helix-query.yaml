@@ -49,3 +49,48 @@ indices:
         select: head > meta[property="og:title"]
         value: |
           attribute(el, "content")
+  events:
+    include:
+      - /events-and-promotions/schedule-of-events/**
+    target: /events-and-promotions/schedule-of-events/query-index.json
+    properties:
+      title:
+        select: main h1
+        value: |
+          textContent(el)
+      description:
+        select: head > meta[name="description"]
+        value: |
+          attribute(el, "content")
+      eventDate:
+        select: head > meta[name="event-date"]
+        value: |
+          dateValue(attribute(el, "content"), "MM/DD/YYYY")
+      eventTime:
+        select: head > meta[name="event-time"]
+        value: |
+          attribute(el, "content")
+      eventLocation:
+        select: head > meta[name="event-location"]
+        value: |
+          attribute(el, "content")
+      image:
+        select: head > meta[property="og:image"]
+        value: |
+          match(attribute(el, "content"), "https:\/\/[^/]+(/.*)")
+      artistWebsite:
+        select: head > meta[name="artist-website"]
+        value: |
+          attribute(el, "content")
+      tickets:
+        select: head > meta[name="tickets"]
+        value: |
+          attribute(el, "content")
+      onsale:
+        select: head > meta[name="onsale"]
+        value: |
+          dateValue(attribute(el, "content"), "MM/DD/YYYY")
+      lastModified:
+        select: none
+        value: |
+          parseTimestamp(headers['last-modified'], 'ddd, DD MMM YYYY hh:mm:ss GMT')

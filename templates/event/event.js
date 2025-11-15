@@ -55,8 +55,8 @@ function createEventDetails() {
     }
   }
 
-  // Ticket button
-  if (ticketsUrl) {
+  // Ticket button (only if tickets URL exists and is not 'free')
+  if (ticketsUrl && ticketsUrl.toLowerCase() !== 'free') {
     const ticketButton = document.createElement('a');
     ticketButton.href = ticketsUrl;
     ticketButton.className = 'btn btn-primary event-tickets-btn';
@@ -89,7 +89,15 @@ function createEventLinks() {
   const artistWebsite = getMetadata('artist-website');
   const eventLocation = getMetadata('event-location');
 
-  if (!artistWebsite && !eventLocation) {
+  // Venue URL mapping
+  const venueUrls = {
+    'Wolf Den': '/poi/venues/wolf-den',
+    'Mohegan Sun Arena': '/poi/venues/mohegan-sun-arena',
+    'Comix Roadhouse': '/poi/dining/comix-roadhouse',
+  };
+
+  // Only render if there's an artist website or a recognized venue
+  if (!artistWebsite && !venueUrls[eventLocation]) {
     return null;
   }
 
@@ -103,7 +111,12 @@ function createEventLinks() {
   }
   
   if (eventLocation) {
-    parts.push(`<strong>${eventLocation.toUpperCase()}</strong>`);
+    const venueUrl = venueUrls[eventLocation];
+    if (venueUrl) {
+      parts.push(`<a href="${venueUrl}"><strong>${eventLocation.toUpperCase()}</strong></a>`);
+    } else {
+      parts.push(`<strong>${eventLocation.toUpperCase()}</strong>`);
+    }
   }
 
   linksDiv.innerHTML = parts.join(' | ');
@@ -112,17 +125,17 @@ function createEventLinks() {
 }
 
 export default function init() {
-  const h1 = document.querySelector('main h1');
-  if (!h1) return;
+  const heading = document.querySelector('main h1, main h2');
+  if (!heading) return;
 
   const eventDetails = createEventDetails();
   if (eventDetails) {
-    // Insert event details after h1
-    h1.insertAdjacentElement('afterend', eventDetails);
+    // Insert event details after heading
+    heading.insertAdjacentElement('afterend', eventDetails);
   }
 
   // Find the last paragraph of body text before section-metadata or other blocks
-  const section = h1.closest('.section') || h1.parentElement;
+  const section = heading.closest('.section') || heading.parentElement;
   const paragraphs = [...section.querySelectorAll('p')].filter(p => {
     // Exclude paragraphs inside other blocks
     return !p.closest('.section-metadata, .hero, .event-details');

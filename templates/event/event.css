@@ -1,5 +1,6 @@
 .event-template {
-  h1 {
+  h1,
+  h2 {
     font-size: var(--heading-font-size-xxxl);
     color: var(--color-mohegan-teal);
   }
@@ -72,6 +73,11 @@
 
 .event-links a:hover {
   color: var(--color-mohegan-purple-dark);
+}
+
+.event-links a strong {
+  font-weight: 700;
+  text-decoration: underline;
 }
 
 .event-links strong {
