@@ -124,9 +124,7 @@ function createMetadata(main, document, eventInfo, firstParagraph) {
 
   // Image - from og:image meta tag
   const metaImage = document.querySelector('meta[property="og:image"]');
-  if (metaImage) {
-    meta.image = metaImage.content;
-  }
+  meta.image = metaImage ? metaImage.content : '';
 
   // Event-specific metadata from extracted info
   if (eventInfo.location) {
@@ -141,6 +139,9 @@ function createMetadata(main, document, eventInfo, firstParagraph) {
     meta['event-time'] = eventInfo.time;
   }
 
+  // Event type - blank by default, to be filled in by author
+  meta['event-type'] = '';
+
   if (eventInfo.artistWebsite) {
     meta['artist-website'] = eventInfo.artistWebsite;
   }
@@ -149,9 +150,8 @@ function createMetadata(main, document, eventInfo, firstParagraph) {
     meta.tickets = eventInfo.tickets;
   }
 
-  if (eventInfo.onsale) {
-    meta.onsale = eventInfo.onsale;
-  }
+  // On-sale date - always include even if blank
+  meta.onsale = eventInfo.onsale || '';
 
   // Color theme - default to purple
   meta['color-theme'] = 'purple';

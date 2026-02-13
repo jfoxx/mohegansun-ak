@@ -3,7 +3,7 @@ import { loadArea, setConfig, getMetadata, getConfig } from './ak.js';
 const hostnames = ['authorkit.dev'];
 
 const locales = {
-  '': { lang: 'en', fonts: 'oey3xll.css'},
+  '': { lang: 'en', fonts: 'oey3xll.css' },
   '/de': { lang: 'de' },
   '/es': { lang: 'es' },
   '/fr': { lang: 'fr' },
@@ -12,8 +12,7 @@ const locales = {
   '/zh': { lang: 'zh' },
 };
 
-// Widget patterns to look for
-const widgets = [
+const linkBlocks = [
   { fragment: '/fragments/' },
   { schedule: '/schedules/' },
   { youtube: 'https://www.youtube' },
@@ -38,9 +37,9 @@ const decorateArea = ({ area = document }) => {
 async function loadTemplateJS() {
   const template = getMetadata('template');
   if (!template) return;
-  
+
   const { codeBase } = getConfig();
-  
+
   try {
     const mod = await import(`${codeBase}/templates/${template}/${template}.js`);
     if (mod.default) {
@@ -54,8 +53,17 @@ async function loadTemplateJS() {
   }
 }
 
-(async function loadPage() {
-  setConfig({ hostnames, locales, widgets, components, decorateArea });
+export async function loadPage() {
+  setConfig({ hostnames, locales, linkBlocks, components, decorateArea });
   await loadArea();
   await loadTemplateJS();
+}
+await loadPage();
+
+(function da() {
+  const { searchParams } = new URL(window.location.href);
+  const hasPreview = searchParams.has('dapreview');
+  if (hasPreview) import('../tools/da/da.js').then((mod) => mod.default(loadPage));
+  const hasQE = searchParams.has('quick-edit');
+  if (hasQE) import('../tools/quick-edit/quick-edit.js').then((mod) => mod.default());
 }());
