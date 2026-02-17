@@ -3,10 +3,10 @@ import setColorTheme from './utils/color-theme.js';
 
 const { locale } = getConfig();
 
-(async function loadPostLCP() {
+export default async function loadPostLCP() {
   setColorTheme();
   const header = document.querySelector('header');
-  if (header) loadBlock(header);
+  if (header) await loadBlock(header);
   import('./utils/sidemenu.js');
   loadStyle(`https://use.typekit.net/${locale.fonts}`);
-}());
+}

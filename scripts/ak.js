@@ -1,4 +1,16 @@
-const log = async (ex, el) => (await import('./utils/error.js')).default(ex, el);
+/*
+ * Copyright 2026 Adobe. All rights reserved.
+ * This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
+
+const LOG = async (ex, el) => (await import('./utils/error.js')).default(ex, el);
 
 export function getMetadata(name) {
   const attr = name && name.includes(':') ? 'property' : 'name';
@@ -6,7 +18,7 @@ export function getMetadata(name) {
   return meta && meta.content;
 }
 
-export function getLocale(locales) {
+export function getLocale(locales = { '': {} }) {
   const { pathname } = window.location;
   const matches = Object.keys(locales).filter((locale) => pathname.startsWith(`${locale}/`));
   const prefix = getMetadata('locale') || matches.sort((a, b) => b.length - a.length)?.[0] || '';
@@ -20,7 +32,7 @@ export const [setConfig, getConfig] = (() => {
     (conf = {}) => {
       config = {
         ...conf,
-        log: conf.log || log,
+        log: conf.log || LOG,
         locale: getLocale(conf.locales),
         codeBase: `${import.meta.url.replace('/scripts/ak.js', '')}`,
       };
@@ -46,22 +58,22 @@ export async function loadStyle(href) {
 }
 
 export async function loadBlock(block) {
-  const { components } = getConfig();
+  const { codeBase, log, components } = getConfig();
   const { classList } = block;
   const name = classList[0];
   block.dataset.blockName = name;
-  const blockPath = `/blocks/${name}/${name}`;
-  const loaded = [new Promise((resolve) => {
+  const blockPath = `${codeBase}/blocks/${name}/${name}`;
+  const loading = [new Promise((resolve) => {
     (async () => {
       try {
         await (await import(`${blockPath}.js`)).default(block);
-      } catch (ex) { await getConfig().log(ex, block); }
+      } catch (ex) { log(ex, block); }
       resolve();
     })();
   })];
   const isCmp = components.some((cmp) => name === cmp);
-  if (!isCmp) loaded.push(loadStyle(`${blockPath}.css`));
-  await Promise.all(loaded);
+  if (!isCmp) loading.push(loadStyle(`${blockPath}.css`));
+  await Promise.all(loading);
   return block;
 }
 
@@ -132,7 +144,7 @@ function decorateButton(link) {
 export function localizeUrl({ config, url }) {
   const { locales, locale } = config;
 
-  // If we are in the root locale, do nothing
+  // If in root locale, do nothing
   if (locale.prefix === '') return null;
 
   const { origin, pathname, search, hash } = url;
@@ -166,21 +178,22 @@ function decorateHash(a, url) {
   return { dnt, dnb };
 }
 
-function decorateLink(config, a) {
+export function decorateLink(config, a) {
   try {
     const url = new URL(a.href);
     const hostMatch = config.hostnames.some((host) => url.hostname.endsWith(host));
     if (hostMatch) a.href = a.href.replace(url.origin, '');
 
+    const isRelative = a.getAttribute('href').startsWith('/');
     const { dnt, dnb } = decorateHash(a, url);
-    if (!dnt) {
+    if (isRelative && !dnt) {
       const localized = localizeUrl({ config, url });
       if (localized) a.href = localized.href;
     }
     decorateButton(a);
     if (!dnb) {
       const { href } = a;
-      const found = config.widgets.some((pattern) => {
+      const found = config.linkBlocks.some((pattern) => {
         const key = Object.keys(pattern)[0];
         if (!href.includes(pattern[key])) return false;
         a.classList.add(key, 'auto-block');
@@ -238,11 +251,9 @@ function decorateSections(parent, isDoc) {
   return [...parent.querySelectorAll(selector)].map((section) => {
     const groups = groupChildren(section);
     section.append(...groups);
-
     section.classList.add('section');
     section.dataset.status = 'decorated';
-
-    section.widgets = decorateLinks(section);
+    section.linkBlocks = decorateLinks(section);
     section.blocks = [...section.querySelectorAll('.block-content > div[class]')];
     return section;
   });
@@ -266,39 +277,30 @@ function decorateHeader() {
   if (breadcrumbs) header.append(breadcrumbs);
 }
 
-export async function loadArea({ area } = { area: document }) {
-  decoratePictures(area);
-  const { decorateArea } = getConfig();
-  if (decorateArea) decorateArea({ area });
-  const isDoc = area === document;
-  if (isDoc) {
-    loadTemplate();
-    decorateHeader();
-  }
-  const sections = decorateSections(area, isDoc);
-  for (const [idx, section] of sections.entries()) {
-    loadIcons(section);
-    await Promise.all(section.widgets.map((block) => loadBlock(block)));
-    await Promise.all(section.blocks.map((block) => loadBlock(block)));
-    delete section.dataset.status;
-    if (isDoc && idx === 0) import('./postlcp.js');
-  }
-  if (isDoc) import('./lazy.js');
-}
+function decorateDoc() {
+  decorateHeader();
+  loadTemplate();
 
-(function init() {
-  // Setup scheme
   const scheme = localStorage.getItem('color-scheme');
   if (scheme) document.body.classList.add(scheme);
 
-  // Detect Hash
   const pageId = window.location.hash?.replace('#', '');
-  if (pageId && document.getElementById(pageId)?.offsetParent === null) {
-    localStorage.setItem('lazyhash', pageId);
-  }
+  if (pageId) localStorage.setItem('lazyhash', pageId);
+}
 
-  // Setup DA
-  if (new URL(window.location.href).searchParams.get('dapreview')) {
-    import('https://da.live/scripts/dapreview.js').then(({ default: daPreview }) => daPreview(loadArea));
+export async function loadArea({ area } = { area: document }) {
+  const isDoc = area === document;
+  if (isDoc) decorateDoc();
+  decoratePictures(area);
+  const { decorateArea } = getConfig();
+  if (decorateArea) decorateArea({ area });
+  const sections = decorateSections(area, isDoc);
+  for (const [idx, section] of sections.entries()) {
+    loadIcons(section);
+    await Promise.all(section.linkBlocks.map((block) => loadBlock(block)));
+    await Promise.all(section.blocks.map((block) => loadBlock(block)));
+    delete section.dataset.status;
+    if (isDoc && idx === 0) import('./postlcp.js').then((mod) => mod.default());
   }
-}());
+  if (isDoc) import('./lazy.js');
+}
